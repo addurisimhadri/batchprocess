@@ -17,7 +17,6 @@ import org.springframework.data.domain.Sort;
 import com.sim.batchprocessing.dao.ContentProcessFTPRepository;
 import com.sim.batchprocessing.entity.ContentProcessFTP;
 import com.sim.batchprocessing.processor.ContentProcessFTPProcessor;
-import com.sim.batchprocessing.reader.ContentProcessFTPReader;
 import com.sim.batchprocessing.writer.ContentProcessFTPWriter;
 
 @Configuration
@@ -45,7 +44,7 @@ public class BatchConfig {
 	}
 
 	private Step fetchContFTP() {
-		return stepBuilderFactory.get("fetchTransaction").<ContentProcessFTP, ContentProcessFTP>chunk(10).reader(reader())
+		return stepBuilderFactory.get("fetchTransaction").<ContentProcessFTP, ContentProcessFTP>chunk(40).reader(reader())
 				.processor(processor).writer(writer).build();
 
 	}

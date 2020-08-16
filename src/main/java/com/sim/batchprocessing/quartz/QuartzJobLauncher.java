@@ -2,6 +2,10 @@ package com.sim.batchprocessing.quartz;
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Marker;
+import org.slf4j.MarkerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.JobParameters;
@@ -16,7 +20,8 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.quartz.QuartzJobBean;
 
 public class QuartzJobLauncher extends QuartzJobBean {
-
+	private static final Logger logger = LoggerFactory.getLogger(QuartzJobLauncher.class);
+	static Marker myMarker = MarkerFactory.getMarker("MYMARKER");
 	
 	private String jobName;
 	 private JobLauncher jobLauncher;
@@ -51,14 +56,17 @@ public class QuartzJobLauncher extends QuartzJobBean {
 		 JobParameters jobParameters = new JobParametersBuilder().addLong("time", System.currentTimeMillis()).toJobParameters();
 		  
 		  try {
-		   Job job = jobLocator.getJob(jobName);
-		   JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+			 
+			  Job job = jobLocator.getJob(jobName);
+			  JobExecution jobExecution = jobLauncher.run(job, jobParameters);
+			  logger.info(myMarker, "################## Status: {} " , jobExecution.getStatus());
+		 
 		   
-		   System.out.println("########### Status: " + jobExecution.getStatus());
 		   
 		  } catch(JobExecutionAlreadyRunningException | JobRestartException | JobInstanceAlreadyCompleteException 
 		    | JobParametersInvalidException | NoSuchJobException  e) {
-		   e.printStackTrace();
+			  logger.info(myMarker, "------------------------ Ex::: {} " , e.getMessage());
+			  e.printStackTrace();
 		  } 
 
 	}
