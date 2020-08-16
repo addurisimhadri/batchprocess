@@ -49,7 +49,7 @@ public class BatchConfig {
 
 	}
 	
-	@Bean(name = "lotteryInfoReader")
+	@Bean(name = "contentReader")
     @StepScope
     public RepositoryItemReader<ContentProcessFTP> reader() {
         RepositoryItemReader<ContentProcessFTP> reader = new RepositoryItemReader<>();

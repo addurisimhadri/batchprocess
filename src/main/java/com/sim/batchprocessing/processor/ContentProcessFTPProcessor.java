@@ -1,6 +1,8 @@
 package com.sim.batchprocessing.processor;
 
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,9 +21,7 @@ import com.sim.batchprocessing.entity.ContentProcessFTP;
 import com.sim.batchprocessing.entity.ContentProvider;
 import com.sim.batchprocessing.entity.ContentType;
 import com.sim.batchprocessing.entity.PhysicalFolder;
-import com.sim.batchprocessing.quartz.QuartzJobLauncher;
 import com.sim.batchprocessing.service.ContentDeviceService;
-import com.sim.batchprocessing.service.ContentProcessFTPService;
 import com.sim.batchprocessing.service.ContentProviderService;
 import com.sim.batchprocessing.service.ContentService;
 import com.sim.batchprocessing.service.ContentTypeService;
@@ -76,6 +76,8 @@ public void checkUploadExtractLoc(ContentProcessFTP item, ContentType contentTyp
 				String cpPath = contentProvider.getServerFtpHome()+File.separator+contentType.getContentName().toUpperCase()+File.separator;
 				if(new File(cpPath+item.getProcessZipfile()).exists()) {			
 					songsUploadExtraLoc(item, cpPath, contentType, contentProvider);
+					Files.delete(Paths.get(cpPath+item.getProcessZipfile()));
+					
 				}else {
 					item.setProcessStatus("Failed ("+item.getProcessZipfile()+" is not found)");
 					logger.info(myMarker, " ContentProcessFTP  {} ",item);
@@ -95,14 +97,13 @@ public void checkUploadExtractLoc(ContentProcessFTP item, ContentType contentTyp
 		}
 	}
 	
-	public void songsUploadExtraLoc(ContentProcessFTP item,String cpPath, ContentType contentType,ContentProvider contentProvider) {
-		
+	public boolean songsUploadExtraLoc(ContentProcessFTP item,String cpPath, ContentType contentType,ContentProvider contentProvider) {
+		boolean status=false;
 		try {
 			String zipFileName=item.getProcessZipfile();
 			PhysicalFolder physicalFolder=  physicalFolderService.getPF(item.getPfId());
 			String zipFileName1  = zipFileName;
-			boolean isZipFile = false;
-			boolean status=false;
+			boolean isZipFile = false;			
 			if( zipFileName.endsWith(".zip") ) {
 				zipFileName1 = zipFileName.substring(0,zipFileName.indexOf("zip")-1);
 				isZipFile = true;
@@ -135,9 +136,16 @@ public void checkUploadExtractLoc(ContentProcessFTP item, ContentType contentTyp
 			
 			status=ContentProcessFTPUtility.processContentDownload(ftpObject, contentDeviceService, contentService, item, songMetaService);
 			logger.info(myMarker," processContentDownload {} ",status);
+			if( new File(uploadExtractLoc+zipFileName1).exists() ) {
+				String str=uploadExtractLoc+zipFileName1;							
+				logger.info(myMarker, "UnZipFile location {} is Deleted",str);
+				org.apache.commons.io.FileUtils.deleteDirectory( new File(str) );
+				
+			}	
 		} catch (Exception e) {
 			logger.info(myMarker," Ex::  {} ",e);
 		}	
+		return status;
 	}
 	
 	public void imageTypeResize(ContentProcessFTP item) {

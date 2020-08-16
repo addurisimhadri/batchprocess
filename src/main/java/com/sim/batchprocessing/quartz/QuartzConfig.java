@@ -57,7 +57,7 @@ public class QuartzConfig {
 	  CronTriggerFactoryBean cronTriggerFactoryBean = new CronTriggerFactoryBean();
 	  cronTriggerFactoryBean.setJobDetail(jobDetailFactoryBean().getObject());
 	  //run every 10 seconds
-	  cronTriggerFactoryBean.setCronExpression("0 31 */1 * * ? *");
+	  cronTriggerFactoryBean.setCronExpression("0 25 */1 * * ? *");
 	   logger.info(myMarker, "################## cronTriggerFactoryBean : {}  " ,cronTriggerFactoryBean.getJobDataMap());
 	  return cronTriggerFactoryBean;
 	 }
